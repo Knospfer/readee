@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "67690836553",
+    "project_id": "provalibreria",
+    "storage_bucket": "provalibreria.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67690836553:android:9c08141958e02dc0c24598",
+        "android_client_info": {
+          "package_name": "com.mberrueta.reedy.readee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "67690836553-nhoufq5kosrnqq8p89scs18qd2nguntp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP1y3VcCbM0doqaoDGSWew-NmCGYvLkW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "67690836553-nhoufq5kosrnqq8p89scs18qd2nguntp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
