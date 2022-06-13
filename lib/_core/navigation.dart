@@ -1,5 +1,4 @@
 import 'package:auto_route/annotations.dart';
-import 'package:injectable/injectable.dart';
 import 'package:readee/screens/detail_screen.dart';
 import 'package:readee/screens/home_screen.dart';
 
@@ -11,5 +10,4 @@ import 'package:readee/screens/home_screen.dart';
   ],
 )
 
-@singleton
 class $AppRouter {}
