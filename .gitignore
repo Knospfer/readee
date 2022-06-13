@@ -47,3 +47,5 @@ app.*.map.json
 /android/app/release
 
 *.gr.dart
+*.g.dart
+*.config.dart
