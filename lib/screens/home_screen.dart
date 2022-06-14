@@ -2,9 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_core/navigation.gr.dart';
-import 'package:readee/_domain/book_model.dart';
+import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/depencency_injection.dart';
-import 'package:readee/_domain/book_list_cubit.dart';
+import 'package:readee/_domain/cubits/book_list_cubit.dart';
 import 'package:readee/screens/filter_modal.dart';
 
 class HomeScreen extends StatefulWidget implements AutoRouteWrapper {

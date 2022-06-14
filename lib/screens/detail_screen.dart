@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:readee/_domain/book_model.dart';
+import 'package:readee/_domain/models/book_model.dart';
 
 class DetailScreen extends StatelessWidget {
   final BookModel book;
@@ -66,19 +66,6 @@ class _AvailableBookCtas extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text.rich(
-          TextSpan(
-            text: "You have",
-            children: [
-              TextSpan(
-                text: "${book.daysRemaining} days",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const TextSpan(text: " lefet"),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
         if (!book.isAlreadyBorroedByUser)
           ElevatedButton(
             onPressed: () {},
