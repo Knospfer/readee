@@ -55,24 +55,14 @@ class _BookListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bookAvailable = book.copies > 0;
-    final color =
-        bookAvailable ? Colors.green : Colors.orange;
+    final color = bookAvailable ? Colors.green : Colors.orange;
     final icon =
         bookAvailable ? Icons.check_circle_outline : Icons.access_time_outlined;
 
     return ListTile(
       title: Text(book.name),
       subtitle: Text(book.author),
-      leading: Container(
-        height: 30,
-        width: 30,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(30)),
-          color: color,
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, color: Colors.white),
-      ),
+      leading: Icon(icon, color: color),
     );
   }
 }

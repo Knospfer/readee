@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp.router(
       title: 'Readee',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.purple),
       routerDelegate: _router.delegate(),
       routeInformationParser: _router.defaultRouteParser(),
     );
