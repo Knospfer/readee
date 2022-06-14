@@ -14,6 +14,12 @@ class BookModel {
   final int copies;
   final DateTime? returnDate;
 
+  bool get isAvailable => copies > 0;
+  ///The Database is designed to be used by only one user
+  ///(there is no user table), so in this particular case
+  ///there's no need for other complex checks
+  bool get isAlreadyBorroedByUser => returnDate != null;
+
   const BookModel(
     this.id,
     this.name,
