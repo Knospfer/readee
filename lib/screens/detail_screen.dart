@@ -36,6 +36,7 @@ class DetailScreen extends StatelessWidget {
             ),
           ),
           SliverFillRemaining(
+            hasScrollBody: false,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
                 bottom: 16 + bottomSafeArea,
