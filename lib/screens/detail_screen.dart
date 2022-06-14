@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:readee/_domain/book_model.dart';
 
 class DetailScreen extends StatelessWidget {
-  const DetailScreen({super.key});
+  final BookModel book;
+  const DetailScreen({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {

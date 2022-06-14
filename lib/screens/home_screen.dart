@@ -14,7 +14,8 @@ class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
   State<StatefulWidget> createState() => HomeState();
 
   @override
-  Widget wrappedRoute(BuildContext context) => BlocProvider(
+  Widget wrappedRoute(BuildContext context) =>
+      BlocProvider(
         create: (_) => getIt<BookCubit>(),
         child: this,
       );
@@ -31,9 +32,11 @@ class HomeState extends State<HomeScreen> {
             itemCount: items.length,
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
+              final book = items[index];
+
               return GestureDetector(
-                onTap: () => context.router.push(const DetailScreenRoute()),
-                child: _BookListTile(book: items[index]),
+                onTap: () => context.router.push(DetailScreenRoute(book: book)),
+                child: _BookListTile(book: book),
               );
             },
           );
@@ -57,7 +60,7 @@ class _BookListTile extends StatelessWidget {
     final bookAvailable = book.copies > 0;
     final color = bookAvailable ? Colors.green : Colors.orange;
     final icon =
-        bookAvailable ? Icons.check_circle_outline : Icons.access_time_outlined;
+    bookAvailable ? Icons.check_circle_outline : Icons.access_time_outlined;
 
     return ListTile(
       title: Text(book.name),
