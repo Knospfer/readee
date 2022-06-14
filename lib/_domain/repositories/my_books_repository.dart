@@ -12,7 +12,8 @@ class BookOwnedRepository {
   Stream<BookOwnedModel?> stream(String bookId) =>
       _collection.where("bookId", isEqualTo: bookId).snapshots().map(
             (event) => event.docs
-                .map((e) => BookOwnedModel.fromJson(e.data() as Map<String, dynamic>))
+                .map((e) =>
+                    BookOwnedModel.fromJson(e.data() as Map<String, dynamic>))
                 .firstOrNull,
           );
 
@@ -32,14 +33,13 @@ class BookOwnedRepository {
   }
 
   Future<void> addBook(BookModel book) async {
-    final newDoc = await _collection.add({});
-    await updateBook(
-      BookOwnedModel(
-        id: newDoc.id,
-        bookId: book.id,
-        date: DateTime.now().add(const Duration(days: 14)),
-      ),
+    final newBook = BookOwnedModel(
+      id: "",
+      bookId: book.id,
+      date: DateTime.now().add(const Duration(days: 14)),
     );
+    final newDoc = await _collection.add(newBook.toJson());
+    await updateBook(newBook.copyWith(id: newDoc.id));
   }
 
   Future<void> updateBook(BookOwnedModel book) =>
