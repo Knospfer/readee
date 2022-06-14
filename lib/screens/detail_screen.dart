@@ -8,7 +8,10 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+    final bottomSafeArea = MediaQuery
+        .of(context)
+        .padding
+        .bottom;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,24 +66,38 @@ class _AvailableBookCtas extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Text.rich(
+          TextSpan(
+            text: "You have",
+            children: [
+              TextSpan(
+                text: "${book.daysRemaining} days",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(text: " lefet"),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
         if (!book.isAlreadyBorroedByUser)
           ElevatedButton(
             onPressed: () {},
             child: const Text("Borrow"),
           )
-        else ...[
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text("Keep it for 30 more days"),
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+        else
+          ...[
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("Keep it for 30 more days"),
             ),
-            child: const Text("Return"),
-          ),
-        ],
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+              ),
+              child: const Text("Return"),
+            ),
+          ],
       ],
     );
   }
@@ -98,15 +115,15 @@ class _UnavailableBook extends StatelessWidget {
       children: [
         const Text(
           "This book is currently NOT available!",
-          style: TextStyle(color: Colors.red, fontSize: 16),
+          style: TextStyle(color: Colors.red),
         ),
         const SizedBox(height: 8),
         Text.rich(
           TextSpan(
-            text: "It will be available from ",
+            text: "It will be available in ",
             children: [
               TextSpan(
-                text: "${book.returnDate}",
+                text: "${book.daysRemaining} days",
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
