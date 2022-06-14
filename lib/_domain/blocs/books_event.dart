@@ -21,3 +21,8 @@ class UpdateBookDeadline extends BooksEvent {
 class LendBook extends BooksEvent {
   const LendBook(super.book);
 }
+
+@immutable
+class CheckBookOwnership extends BooksEvent {
+  const CheckBookOwnership(super.book);
+}

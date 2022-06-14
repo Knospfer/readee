@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/repositories/book_repository.dart';
+import 'package:readee/_domain/repositories/my_books_repository.dart';
 
 part 'books_event.dart';
 
@@ -10,9 +11,10 @@ part 'books_state.dart';
 
 @injectable
 class BooksBloc extends Bloc<BooksEvent, BlocState> {
-  final BookRepository repository;
+  final BookRepository bookRepository;
+  final MyBookRepository myBookRepository;
 
-  BooksBloc(this.repository) : super(Initial()) {
+  BooksBloc(this.bookRepository, this.myBookRepository) : super(Initial()) {
     on<BooksEvent>((event, emit) async {
       switch (event.runtimeType) {
         case BorrowBook:
@@ -23,6 +25,10 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
           break;
         case LendBook:
           await _act(event, emit, _lend);
+          break;
+        case CheckBookOwnership:
+          final book = await myBookRepository.getBook(event.book.id);
+          emit(BookOwnershipChecked(book));
           break;
         default:
           break;
@@ -45,13 +51,15 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
       date: DateTime.now(),
       copies: bookModel.copies - 1,
     );
-    await repository.updateBook(updatedBook);
+    await bookRepository.updateBook(updatedBook);
+    await myBookRepository.upsertBook(updatedBook);
   }
 
   Future<void> _updateDeadline(BookModel bookModel) async {
     final oneMonthFromNow = DateTime.now().add(const Duration(days: 30));
     final updatedBook = bookModel.copyWith(date: oneMonthFromNow);
-    await repository.updateBook(updatedBook);
+    await bookRepository.updateBook(updatedBook);
+    await myBookRepository.upsertBook(updatedBook);
   }
 
   Future<void> _lend(BookModel bookModel) async {
@@ -59,6 +67,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
       date: null,
       copies: bookModel.copies + 1,
     );
-    await repository.updateBook(updatedBook);
+    await bookRepository.updateBook(updatedBook);
+    await myBookRepository.removeBook(updatedBook);
   }
 }
