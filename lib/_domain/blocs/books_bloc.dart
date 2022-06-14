@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/repositories/book_repository.dart';
 
@@ -7,6 +8,7 @@ part 'books_event.dart';
 
 part 'books_state.dart';
 
+@injectable
 class BooksBloc extends Bloc<BooksEvent, BlocState> {
   final BookRepository repository;
 
