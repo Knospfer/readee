@@ -13,9 +13,15 @@ class Loading extends BlocState {}
 
 class ErrorReceived extends BlocState {}
 
+class Loaded extends BlocState {
+  final BookDetailEntity entity;
+
+  const Loaded(this.entity);
+}
+
 @immutable
 class BookOwnershipChecked extends BlocState {
-  final BookModel? book;
+  final BookOwnedModel? book;
 
   const BookOwnershipChecked(this.book);
 }

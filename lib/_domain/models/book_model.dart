@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:readee/_core/json_converters/time_stamp.dart';
 
 part 'book_model.freezed.dart';
 
@@ -25,7 +26,7 @@ class BookModel with _$BookModel {
     required String author,
     required String genre,
     required int copies,
-    @TimestampConverter() DateTime? date,
+    @DateToTimestamp() DateTime? date,
   }) = _BookModel;
 
   factory BookModel.fromJson(Map<String, dynamic> json) =>
@@ -34,20 +35,3 @@ class BookModel with _$BookModel {
   const BookModel._();
 }
 
-class TimestampConverter extends JsonConverter<DateTime?, Timestamp?> {
-  const TimestampConverter();
-
-  @override
-  DateTime? fromJson(Timestamp? json) {
-    if (json == null) return null;
-
-    return DateTime.fromMillisecondsSinceEpoch(json.millisecondsSinceEpoch);
-  }
-
-  @override
-  Timestamp? toJson(DateTime? object) {
-    if (object == null) return null;
-
-    return Timestamp.fromDate(object);
-  }
-}

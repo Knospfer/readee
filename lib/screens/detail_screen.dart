@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_domain/blocs/books_bloc.dart';
 import 'package:readee/_domain/models/book_model.dart';
+import 'package:readee/_domain/models/book_owned_model.dart';
 import 'package:readee/depencency_injection.dart';
 
 class DetailScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -25,7 +26,7 @@ class _DetailScreenState extends State<DetailScreen> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<BooksBloc>().add(CheckBookOwnership(widget.book));
+      context.read<BooksBloc>().add(InitializeStream(widget.book));
     });
     super.initState();
   }
@@ -57,9 +58,9 @@ class _DetailScreenState extends State<DetailScreen> {
                   subtitle: Text(widget.book.genre),
                 ),
                 BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
-                  return state is BookOwnershipChecked
-                      ? _DaysLeft(book: state.book)
-                      : const SizedBox.shrink();
+                  if (state is! Loaded) return const SizedBox.shrink();
+
+                  return _OwnedDaysLeft(book: state.entity.bookOwnedModel);
                 }),
               ],
             ),
@@ -70,7 +71,7 @@ class _DetailScreenState extends State<DetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
                 bottom: 16 + bottomSafeArea,
               ),
-              child: _AvailableBookCtas(libraryBook: widget.book),
+              child: const _AvailableBookCtas(),
             ),
           ),
         ],
@@ -80,15 +81,14 @@ class _DetailScreenState extends State<DetailScreen> {
 }
 
 class _AvailableBookCtas extends StatelessWidget {
-  final BookModel libraryBook;
-
-  const _AvailableBookCtas({required this.libraryBook});
+  const _AvailableBookCtas();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
-      if (state is! BookOwnershipChecked) return const SizedBox();
-      final userBook = state.book;
+      if (state is! Loaded) return const SizedBox.shrink();
+      final userBook = state.entity.bookOwnedModel;
+      final libraryBook = state.entity.bookModel;
 
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -104,13 +104,15 @@ class _AvailableBookCtas extends StatelessWidget {
             _UnavailableBook(book: libraryBook)
           else ...[
             ElevatedButton(
-              onPressed: () =>
-                  context.read<BooksBloc>().add(UpdateBookDeadline(userBook)),
+              onPressed: () => context.read<BooksBloc>().add(
+                    UpdateBookDeadline(libraryBook, userBook),
+                  ),
               child: const Text("Keep it for 30 more days"),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  context.read<BooksBloc>().add(LendBook(userBook)),
+              onPressed: () => context.read<BooksBloc>().add(
+                    LendBook(libraryBook, userBook),
+                  ),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
               ),
@@ -155,10 +157,10 @@ class _UnavailableBook extends StatelessWidget {
   }
 }
 
-class _DaysLeft extends StatelessWidget {
-  final BookModel? book;
+class _OwnedDaysLeft extends StatelessWidget {
+  final BookOwnedModel? book;
 
-  const _DaysLeft({required this.book});
+  const _OwnedDaysLeft({required this.book});
 
   @override
   Widget build(BuildContext context) {

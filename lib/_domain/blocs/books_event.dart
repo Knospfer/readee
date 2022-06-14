@@ -8,21 +8,28 @@ abstract class BooksEvent {
 }
 
 @immutable
+abstract class BooksOwnedEvent extends BooksEvent {
+  final BookOwnedModel bookOwnedModel;
+
+  const BooksOwnedEvent(super.book, this.bookOwnedModel);
+}
+
+@immutable
+class InitializeStream extends BooksEvent {
+  const InitializeStream(super.book);
+}
+
+@immutable
 class BorrowBook extends BooksEvent {
   const BorrowBook(super.book);
 }
 
 @immutable
-class UpdateBookDeadline extends BooksEvent {
-  const UpdateBookDeadline(super.book);
+class UpdateBookDeadline extends BooksOwnedEvent {
+  const UpdateBookDeadline(super.book, super.bookOwnedModel);
 }
 
 @immutable
-class LendBook extends BooksEvent {
-  const LendBook(super.book);
-}
-
-@immutable
-class CheckBookOwnership extends BooksEvent {
-  const CheckBookOwnership(super.book);
+class LendBook extends BooksOwnedEvent {
+  const LendBook(super.book, super.bookOwnedModel);
 }
