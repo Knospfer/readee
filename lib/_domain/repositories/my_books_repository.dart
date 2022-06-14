@@ -9,19 +9,18 @@ class MyBookRepository {
   FirebaseFirestore.instance.collection('my_books');
 
   Future<BookModel?> getBook(String bookId) async {
-    final querySnapshot = await _collection.where("id", isEqualTo: bookId)
-        .get();
-    final book = querySnapshot.docs.firstOrNull;
+    final querySnapshotList =
+    await _collection.where("id", isEqualTo: bookId).get();
+    final querySnapshot = querySnapshotList.docs.firstOrNull;
+    if (querySnapshot == null) return null;
+    final bookRaw = querySnapshot.data() as Map<String, dynamic>;
 
-    return book?.data() as BookModel?;
+    return BookModel.fromJson(bookRaw);
   }
-
 
   Future<void> upsertBook(BookModel bookModel) async {
     final book = await getBook(bookModel.id);
-    book != null
-        ? await _addBook(bookModel)
-        : await _updateBook(bookModel);
+    book == null ? await _addBook(bookModel) : await _updateBook(bookModel);
   }
 
   Future<DocumentReference> _addBook(BookModel bookModel) =>

@@ -7,16 +7,8 @@ part 'book_model.freezed.dart';
 
 part 'book_model.g.dart';
 
-@JsonSerializable()
 @freezed
-class BookModel
-    with _$BookModel {
-
-  ///The Database is designed to be used by only one user
-  ///(there is no user table), so in this particular case
-  ///there's no need for other complex checks
-  bool get isAlreadyBorroedByUser => date != null;
-
+class BookModel with _$BookModel {
   int? get daysRemaining {
     final acutalDate = date;
     if (acutalDate == null) return null;

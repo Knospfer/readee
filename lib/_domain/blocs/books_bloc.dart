@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:readee/_domain/models/book_model.dart';
@@ -42,7 +43,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
     Future<void> Function(BookModel book) callback,
   ) async {
     emit(Loading());
-    await _borrow(event.book);
+    await callback(event.book);
     emit(ActionPerformed());
   }
 
