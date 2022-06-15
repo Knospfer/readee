@@ -12,22 +12,27 @@ Future<void> showFilterModal(BuildContext context) => showModalBottomSheet(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
-      builder: (_) => FilterModal(),
+      builder: (_) => const FilterModal(),
     );
 
-class FilterModal extends StatelessWidget {
+class FilterModal extends StatefulWidget {
+  const FilterModal({super.key});
+
+  @override
+  State<FilterModal> createState() => _FilterModalState();
+}
+
+class _FilterModalState extends State<FilterModal> {
   final form = FormGroup({
     'name': FormControl<String>(value: ''),
     'wishlisted': FormControl<bool>(value: false),
   });
 
-  FilterModal({super.key});
+  void _submit(BuildContext context, FormGroup formGroup) {
+    final name = formGroup.control('name').value as String;
+    final wishlisted = formGroup.control('wishlisted').value;
 
-  void _submit(BuildContext context) {
-    final name = form.control('name').value;
-    final wishlisted = form.control('wishlisted').value;
-
-    final isFormEmpty = name == null && wishlisted == false;
+    final isFormEmpty = name.isEmpty && wishlisted == false;
     final filter = isFormEmpty
         ? null
         : FilterBookEntity(
@@ -61,10 +66,19 @@ class FilterModal extends StatelessWidget {
               formControlName: "wishlisted",
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () => _submit(context),
-                child: const Text("Search!"),
+              padding: const EdgeInsets.all(16).copyWith(bottom: 8),
+              child: ReactiveFormConsumer(
+                builder: (context, form, _) => ElevatedButton(
+                  onPressed: () => _submit(context, form),
+                  child: const Text("Search!"),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextButton(
+                onPressed: () => context.router.pop(),
+                child: const Text("Reset"),
               ),
             ),
           ],
