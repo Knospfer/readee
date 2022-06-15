@@ -75,9 +75,9 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
   }
 
   Future<void> _updateDeadline(BookModel book, BookOwnedModel bookOwned) async {
-    final oneMonthFromNow = DateTime.now().add(const Duration(days: 30));
-    final updatedBookOwned = bookOwned.copyWith(date: oneMonthFromNow);
-    final updatedBook = book.copyWith(date: oneMonthFromNow);
+    final oneMoreMonth = bookOwned.date.add(const Duration(days: 30));
+    final updatedBookOwned = bookOwned.copyWith(date: oneMoreMonth);
+    final updatedBook = book.copyWith(date: oneMoreMonth);
 
     await _bookRepository.updateBook(updatedBook);
     await _bookOwnedRepository.updateBook(updatedBookOwned);
