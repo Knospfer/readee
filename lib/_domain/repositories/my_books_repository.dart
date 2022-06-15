@@ -7,15 +7,20 @@ import 'package:readee/_domain/models/book_owned_model.dart';
 @lazySingleton
 class BookOwnedRepository {
   final CollectionReference _collection =
-      FirebaseFirestore.instance.collection('my_books');
+  FirebaseFirestore.instance.collection('my_books');
 
   Stream<BookOwnedModel?> stream(String bookId) =>
       _collection.where("bookId", isEqualTo: bookId).snapshots().map(
-            (event) => event.docs
-                .map((e) =>
-                    BookOwnedModel.fromJson(e.data() as Map<String, dynamic>))
-                .firstOrNull,
-          );
+            (event) =>
+        event.docs
+            .map(
+              (e) =>
+              BookOwnedModel.fromJson(
+                e.data() as Map<String, dynamic>,
+              ),
+        )
+            .firstOrNull,
+      );
 
   Future<BookOwnedModel?> getBook(String bookId) async {
     final querySnapshot = await _getSnapshow(bookId);
@@ -27,9 +32,14 @@ class BookOwnedRepository {
 
   Future<QueryDocumentSnapshot?> _getSnapshow(String bookId) async {
     final querySnapshotList =
-        await _collection.where("bookId", isEqualTo: bookId).get();
+    await _collection.where("bookId", isEqualTo: bookId).get();
 
     return querySnapshotList.docs.firstOrNull;
+  }
+
+  Future<int> getUserBooksNumber() async {
+    final querySnapshot = await _collection.get();
+    return querySnapshot.docs.length;
   }
 
   Future<void> addBook(BookModel book) async {

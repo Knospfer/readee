@@ -47,25 +47,28 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
             _bookRepository.singleBookStream(bookId),
             _bookOwnedRepository.stream(bookId)
           ],
-          (values) => BookDetailEntity(
-            values.first as BookModel,
-            values.last as BookOwnedModel?,
-          ),
+              (values) =>
+              BookDetailEntity(
+                values.first as BookModel,
+                values.last as BookOwnedModel?,
+              ),
         ),
         onData: (BookDetailEntity entity) => Loaded(entity),
       );
 
-  Future<void> _act(
-    BooksOwnedEvent event,
-    Emitter<BlocState> emit,
-    Future<void> Function(BookModel book, BookOwnedModel bookOwned) callback,
-  ) async {
+  Future<void> _act(BooksOwnedEvent event,
+      Emitter<BlocState> emit,
+      Future<
+          void> Function(BookModel book, BookOwnedModel bookOwned) callback,) async {
     // emit(Loading());
     await callback(event.book, event.bookOwnedModel);
     // emit(ActionPerformed());
   }
 
   Future<void> _borrow(BookModel bookModel) async {
+    final canBorrow = await _checkUserCanBorrowMoreBooks();
+    if (!canBorrow) return; //TODO ALERT
+
     final updatedBook = bookModel.copyWith(
       date: DateTime.now(),
       copies: bookModel.copies - 1,
@@ -90,5 +93,11 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
     );
     await _bookRepository.updateBook(updatedBook);
     await _bookOwnedRepository.removeBook(bookOwned);
+  }
+
+  Future<bool> _checkUserCanBorrowMoreBooks() async {
+    final userBooksNumber = await _bookOwnedRepository.getUserBooksNumber();
+
+    return userBooksNumber <= 3;
   }
 }
