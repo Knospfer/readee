@@ -25,7 +25,7 @@ class BookCubit extends Cubit<List<BookModel>> {
 
     final stream = filter.name.isEmpty
         ? _bookRepository.stream()
-        : _bookRepository.query(filter.name);
+        : _bookRepository.queryBy(filter.name);
 
     _subscription = stream.listen(
           (event) => emit(event.where((e) => e.owned == filter.owned).toList()),

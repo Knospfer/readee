@@ -48,7 +48,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       emit.forEach(
         CombineLatestStream(
           [
-            _bookRepository.singleBookStream(bookId),
+            _bookRepository.singleItemStream(bookId),
             _bookOwnedRepository.singleBookStream(bookId)
           ],
           (values) => BookDetailEntity(
@@ -83,7 +83,10 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       bookId: bookModel.id,
       date: DateTime.now().add(const Duration(days: 14)),
     );
-    await _bookRepository.updateBook(updatedBook);
+    await _bookRepository.update(
+      id: updatedBook.id,
+      toJson: updatedBook.toJson,
+    );
     await _bookOwnedRepository.addBook(newBook);
     await _wishlistRepository.updateIdExisting(updatedBook);
   }
@@ -94,7 +97,10 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
     final updatedBookOwned = bookOwned.copyWith(date: oneMoreMonth);
     final updatedBook = book.copyWith(date: oneMoreMonth);
 
-    await _bookRepository.updateBook(updatedBook);
+    await _bookRepository.update(
+      id: updatedBook.id,
+      toJson: updatedBook.toJson,
+    );
     await _bookOwnedRepository.updateBook(updatedBookOwned);
   }
 
@@ -103,7 +109,10 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       date: null,
       copies: book.copies + 1,
     );
-    await _bookRepository.updateBook(updatedBook);
+    await _bookRepository.update(
+      id: updatedBook.id,
+      toJson: updatedBook.toJson,
+    );
     await _bookOwnedRepository.removeBook(bookOwned);
   }
 
