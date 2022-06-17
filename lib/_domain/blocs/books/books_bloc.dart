@@ -10,6 +10,7 @@ import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 import 'package:readee/_domain/repositories/book_repository.dart';
 import 'package:readee/_domain/repositories/my_books_repository.dart';
+import 'package:readee/_domain/repositories/wishlist_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 part 'books_event.dart';
@@ -20,8 +21,10 @@ part 'books_state.dart';
 class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
   final BookRepository _bookRepository;
   final BookOwnedRepository _bookOwnedRepository;
+  final WishlistRepository _wishlistRepository;
 
-  BooksBloc(this._bookRepository, this._bookOwnedRepository)
+  BooksBloc(
+      this._bookRepository, this._bookOwnedRepository, this._wishlistRepository)
       : super(Initial<BookDetailEntity>()) {
     on<BooksEvent>((event, emit) async {
       switch (event.runtimeType) {
@@ -73,6 +76,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
     final updatedBook = bookModel.copyWith(
       date: DateTime.now(),
       copies: bookModel.copies - 1,
+      owned: true,
     );
     final newBook = BookOwnedModel(
       id: "",
@@ -81,6 +85,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
     );
     await _bookRepository.updateBook(updatedBook);
     await _bookOwnedRepository.addBook(newBook);
+    await _wishlistRepository.updateIdExisting(updatedBook);
   }
 
   Future<void> _updateDeadline(BookModel book, BookOwnedModel bookOwned) async {

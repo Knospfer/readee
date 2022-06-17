@@ -7,32 +7,40 @@ import 'package:collection/collection.dart';
 @lazySingleton
 class WishlistRepository {
   final CollectionReference _collection =
-      FirebaseFirestore.instance.collection('wishlist');
+  FirebaseFirestore.instance.collection('wishlist');
 
-  Stream<List<BookModel>> stream() => _collection.snapshots().map(
-        (event) => event.docs
-            .map((e) => BookModel.fromJson(e.data() as Map<String, dynamic>))
-            .toList(),
+  Stream<List<BookModel>> stream() =>
+      _collection.snapshots().map(
+            (event) =>
+            event.docs
+                .map((e) =>
+                BookModel.fromJson(e.data() as Map<String, dynamic>))
+                .toList(),
       );
 
   Stream<BookModel?> singleBookStream(String bookId) =>
       _collection.where("id", isEqualTo: bookId).snapshots().map(
-            (event) => event.docs
-                .map(
-                  (e) => BookModel.fromJson(
-                    e.data() as Map<String, dynamic>,
-                  ),
-                )
-                .firstOrNull,
-          );
+            (event) =>
+        event.docs
+            .map(
+              (e) =>
+              BookModel.fromJson(
+                e.data() as Map<String, dynamic>,
+              ),
+        )
+            .firstOrNull,
+      );
 
-  Stream<List<BookModel>> query(String bookName) => _collection
-      .where('name', isEqualTo: bookName)
-      .snapshots()
-      .map(
-        (event) => event.docs
-            .map((e) => BookModel.fromJson(e.data() as Map<String, dynamic>))
-            .toList(),
+  Stream<List<BookModel>> query(String bookName) =>
+      _collection
+          .where('name', isEqualTo: bookName)
+          .snapshots()
+          .map(
+            (event) =>
+            event.docs
+                .map((e) =>
+                BookModel.fromJson(e.data() as Map<String, dynamic>))
+                .toList(),
       );
 
   Future<void> addBook(BookModel book) => _collection.add(book.toJson());
@@ -50,9 +58,16 @@ class WishlistRepository {
     _collection.doc(actualBook?.id).delete();
   }
 
+  Future<void> updateIdExisting(BookModel book) async {
+    final actualBook = await _getSnapshot(book.id);
+    if (actualBook == null) return;
+
+    _collection.doc(actualBook.id).update(book.toJson());
+  }
+
   Future<QueryDocumentSnapshot?> _getSnapshot(String bookId) async {
     final querySnapshotList =
-        await _collection.where("id", isEqualTo: bookId).get();
+    await _collection.where("id", isEqualTo: bookId).get();
 
     return querySnapshotList.docs.firstOrNull;
   }
