@@ -28,7 +28,7 @@ class WishlistBloc extends Bloc<WishlistEvent, BlocState<bool>> {
 
   Future<void> _initStream(Emitter<BlocState> emit, String bookId) =>
       emit.forEach(
-        _repository.stream(bookId),
+        _repository.singleBookStream(bookId),
         onData: (BookModel? book) => Loaded<bool>(book != null),
       );
 

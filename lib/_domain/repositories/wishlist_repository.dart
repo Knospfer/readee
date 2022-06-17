@@ -7,19 +7,32 @@ import 'package:collection/collection.dart';
 @lazySingleton
 class WishlistRepository {
   final CollectionReference _collection =
-  FirebaseFirestore.instance.collection('wishlits');
+      FirebaseFirestore.instance.collection('wishlits');
 
-  Stream<BookModel?> stream(String bookId) =>
+  Stream<List<BookModel>> stream() => _collection.snapshots().map(
+        (event) => event.docs
+            .map((e) => BookModel.fromJson(e.data() as Map<String, dynamic>))
+            .toList(),
+      );
+
+  Stream<BookModel?> singleBookStream(String bookId) =>
       _collection.where("id", isEqualTo: bookId).snapshots().map(
-            (event) =>
-        event.docs
-            .map(
-              (e) =>
-              BookModel.fromJson(
-                e.data() as Map<String, dynamic>,
-              ),
-        )
-            .firstOrNull,
+            (event) => event.docs
+                .map(
+                  (e) => BookModel.fromJson(
+                    e.data() as Map<String, dynamic>,
+                  ),
+                )
+                .firstOrNull,
+          );
+
+  Stream<List<BookModel>> query(String bookName) => _collection
+      .where('name', isEqualTo: bookName)
+      .snapshots()
+      .map(
+        (event) => event.docs
+            .map((e) => BookModel.fromJson(e.data() as Map<String, dynamic>))
+            .toList(),
       );
 
   Future<void> addBook(BookModel book) => _collection.add(book.toJson());
@@ -35,12 +48,11 @@ class WishlistRepository {
   Future<void> updateBook(BookModel book) =>
       _collection.doc(book.id).update(book.toJson());
 
-  Future<void> removeBook(BookModel book) =>
-      _collection.doc(book.id).delete();
+  Future<void> removeBook(BookModel book) => _collection.doc(book.id).delete();
 
   Future<QueryDocumentSnapshot?> _getSnapshot(String bookId) async {
     final querySnapshotList =
-    await _collection.where("id", isEqualTo: bookId).get();
+        await _collection.where("id", isEqualTo: bookId).get();
 
     return querySnapshotList.docs.firstOrNull;
   }
