@@ -28,7 +28,7 @@ class BookCubit extends Cubit<List<BookModel>> {
         : _bookRepository.queryBy(filter.name);
 
     _subscription = stream.listen(
-          (event) => emit(event.where((e) => e.owned == filter.owned).toList()),
+      (event) => emit(event.where((e) => e.owned == filter.owned).toList()),
     );
   }
 
@@ -43,13 +43,12 @@ class BookCubit extends Cubit<List<BookModel>> {
 
     final stream = bookName.isEmpty
         ? _wishlistRepository.stream()
-        : _wishlistRepository.query(bookName);
+        : _wishlistRepository.queryBy(bookName);
 
     _subscription = stream.listen(
-          (event) =>
-          emit(
-            event.where((e) => e.owned == owned).toList(),
-          ),
+      (event) => emit(
+        event.where((e) => e.owned == owned).toList(),
+      ),
     );
   }
 

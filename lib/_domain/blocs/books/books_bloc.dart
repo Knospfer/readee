@@ -88,7 +88,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       toJson: updatedBook.toJson,
     );
     await _bookOwnedRepository.addModelWithId(newBook);
-    await _wishlistRepository.updateIdExisting(updatedBook);
+    await _wishlistRepository.updateIfExisting(updatedBook);
   }
 
   Future<void> _updateDeadline(BookModel book, BookOwnedModel bookOwned) async {

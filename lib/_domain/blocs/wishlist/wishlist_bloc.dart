@@ -28,15 +28,15 @@ class WishlistBloc extends Bloc<WishlistEvent, BlocState<bool>> {
 
   Future<void> _initStream(Emitter<BlocState> emit, String bookId) =>
       emit.forEach(
-        _repository.singleBookStream(bookId),
+        _repository.singleItemStream(bookId),
         onData: (BookModel? book) => Loaded<bool>(book != null),
       );
 
   Future<void> _toggleWishList(BookModel bookModel) async {
-    final acutalBook = await _repository.getBook(bookModel.id);
+    final acutalBook = await _repository.get(bookModel.id);
 
     acutalBook == null
-        ? await _repository.addBook(bookModel)
+        ? await _repository.add(toJson: bookModel.toJson)
         : await _repository.removeBook(acutalBook);
   }
 }
