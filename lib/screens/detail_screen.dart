@@ -103,7 +103,16 @@ class _AvailableBookCtas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
+    return BlocConsumer<BooksBloc, BlocState>(listener: (_, state) {
+      if (state is ErrorReceived) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.error),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    }, builder: (_, state) {
       if (state is! Loaded) return const SizedBox.shrink();
       final userBook = state.data.bookOwnedModel;
       final libraryBook = state.data.bookModel;

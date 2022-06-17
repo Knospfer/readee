@@ -32,7 +32,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
     on<BooksEvent>((event, emit) async {
       switch (event.runtimeType) {
         case BorrowBook:
-          await _borrow(event.book);
+          await _borrow(emit, event.book);
           break;
         case UpdateBookDeadline:
           await _act(event as BooksOwnedEvent, emit, _updateDeadline);
@@ -63,9 +63,12 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
     // emit(ActionPerformed());
   }
 
-  Future<void> _borrow(BookModel bookModel) async {
+  Future<void> _borrow(Emitter<BlocState> emit, BookModel bookModel) async {
     final canBorrow = await _borrowUseCase.checkUserCanBorrowMoreBooks();
-    if (!canBorrow) return; //TODO ALERT
+    if (!canBorrow) {
+      emit(const ErrorReceived<BookDetailEntity>("You can borrow max 3 books"));
+      return;
+    }
     await _borrowUseCase.borrow(bookModel);
   }
 
