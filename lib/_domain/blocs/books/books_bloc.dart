@@ -8,24 +8,27 @@ import 'package:readee/_core/definitions/bloc_state.dart';
 import 'package:readee/_domain/entities/book_detail_entity.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
-import 'package:readee/_domain/repositories/book_repository.dart';
-import 'package:readee/_domain/repositories/my_books_repository.dart';
-import 'package:readee/_domain/repositories/wishlist_repository.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:readee/_domain/use_cases/borrow_use_case.dart';
+import 'package:readee/_domain/use_cases/give_back_use_case.dart';
+import 'package:readee/_domain/use_cases/update_deadline_use_case.dart';
+import 'package:readee/_non_functional_requirements/detail_page_stream_use_case.dart';
 
 part 'books_event.dart';
-
 part 'books_state.dart';
 
 @injectable
 class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
-  final BookRepository _bookRepository;
-  final BookOwnedRepository _bookOwnedRepository;
-  final WishlistRepository _wishlistRepository;
+  final GiveBackUseCase _giveBackUseCase;
+  final UpdateDeadlineUseCase _updateDeadlineUseCase;
+  final BorrowUseCase _borrowUseCase;
+  final DetailPageStreamUseCase _detailPageStreamUseCase;
 
   BooksBloc(
-      this._bookRepository, this._bookOwnedRepository, this._wishlistRepository)
-      : super(Initial<BookDetailEntity>()) {
+    this._giveBackUseCase,
+    this._updateDeadlineUseCase,
+    this._borrowUseCase,
+    this._detailPageStreamUseCase,
+  ) : super(Initial<BookDetailEntity>()) {
     on<BooksEvent>((event, emit) async {
       switch (event.runtimeType) {
         case BorrowBook:
@@ -35,7 +38,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
           await _act(event as BooksOwnedEvent, emit, _updateDeadline);
           break;
         case LendBook:
-          await _act(event as BooksOwnedEvent, emit, _lend);
+          await _act(event as BooksOwnedEvent, emit, _giveBackUseCase.giveBack);
           break;
         case InitializeStream:
           await _initStream(emit, event.book.id);
@@ -46,16 +49,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
 
   Future<void> _initStream(Emitter<BlocState> emit, String bookId) =>
       emit.forEach(
-        CombineLatestStream(
-          [
-            _bookRepository.singleItemStream(bookId),
-            _bookOwnedRepository.singleItemStream(bookId)
-          ],
-          (values) => BookDetailEntity(
-            values.first as BookModel,
-            values.last as BookOwnedModel?,
-          ),
-        ),
+        _detailPageStreamUseCase.stream(bookId),
         onData: (BookDetailEntity entity) => Loaded<BookDetailEntity>(entity),
       );
 
@@ -70,58 +64,13 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
   }
 
   Future<void> _borrow(BookModel bookModel) async {
-    final canBorrow = await _checkUserCanBorrowMoreBooks();
+    final canBorrow = await _borrowUseCase.checkUserCanBorrowMoreBooks();
     if (!canBorrow) return; //TODO ALERT
-
-    final updatedBook = bookModel.copyWith(
-      date: DateTime.now(),
-      copies: bookModel.copies - 1,
-      owned: true,
-    );
-    final newBook = BookOwnedModel(
-      id: "",
-      bookId: bookModel.id,
-      date: DateTime.now().add(const Duration(days: 14)),
-    );
-    await _bookRepository.update(
-      id: updatedBook.id,
-      toJson: updatedBook.toJson,
-    );
-    await _bookOwnedRepository.addModelWithId(newBook);
-    await _wishlistRepository.updateIfExisting(updatedBook);
+    await _borrowUseCase.borrow(bookModel);
   }
 
   Future<void> _updateDeadline(BookModel book, BookOwnedModel bookOwned) async {
     if (bookOwned.date == null) return; //todo alert
-    final oneMoreMonth = bookOwned.date?.add(const Duration(days: 30));
-    final updatedBookOwned = bookOwned.copyWith(date: oneMoreMonth);
-    final updatedBook = book.copyWith(date: oneMoreMonth);
-
-    await _bookRepository.update(
-      id: updatedBook.id,
-      toJson: updatedBook.toJson,
-    );
-    await _bookOwnedRepository.update(
-      id: updatedBookOwned.id,
-      toJson: updatedBookOwned.toJson,
-    );
-  }
-
-  Future<void> _lend(BookModel book, BookOwnedModel bookOwned) async {
-    final updatedBook = book.copyWith(
-      date: null,
-      copies: book.copies + 1,
-    );
-    await _bookRepository.update(
-      id: updatedBook.id,
-      toJson: updatedBook.toJson,
-    );
-    await _bookOwnedRepository.remove(bookOwned.id);
-  }
-
-  Future<bool> _checkUserCanBorrowMoreBooks() async {
-    final userBooksNumber = await _bookOwnedRepository.getUserBooksNumber();
-
-    return userBooksNumber <= 3;
+    await _updateDeadlineUseCase.updateDeadline(book, bookOwned);
   }
 }
