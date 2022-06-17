@@ -1,53 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
+import 'package:readee/_core/definitions/base_repository.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 
 //TODO RIMUOVI CODICE DUPLICATO
 @lazySingleton
-class BookOwnedRepository {
-  final CollectionReference _collection =
-      FirebaseFirestore.instance.collection('my_books');
+class BookOwnedRepository extends BaseRepository {
+  BookOwnedRepository()
+      : super(
+    collectionName: "my_books",
+    itemNameKey: "bookId",
+    itemIdKey: "bookId",
+  );
 
-  Stream<BookOwnedModel?> singleBookStream(String bookId) =>
-      _collection.where("bookId", isEqualTo: bookId).snapshots().map(
-            (event) => event.docs
-                .map(
-                  (e) => BookOwnedModel.fromJson(
-                    e.data() as Map<String, dynamic>,
-                  ),
-                )
-                .firstOrNull,
-          );
-
-  Future<BookOwnedModel?> getBook(String bookId) async {
-    final querySnapshot = await _getSnapshot(bookId);
-    if (querySnapshot == null) return null;
-
-    final bookRaw = querySnapshot.data() as Map<String, dynamic>;
-    return BookOwnedModel.fromJson(bookRaw);
-  }
-
-  Future<QueryDocumentSnapshot?> _getSnapshot(String bookId) async {
-    final querySnapshotList =
-        await _collection.where("bookId", isEqualTo: bookId).get();
-
-    return querySnapshotList.docs.firstOrNull;
-  }
+  @override
+  fromJson(Map<String, dynamic> map) => BookOwnedModel.fromJson(map);
 
   Future<int> getUserBooksNumber() async {
-    final querySnapshot = await _collection.get();
+    final querySnapshot = await collection.get();
     return querySnapshot.docs.length;
   }
 
-  Future<void> addBook(BookOwnedModel book) async {
-    final newDoc = await _collection.add(book.toJson());
-    await updateBook(book.copyWith(id: newDoc.id));
+  Future<void> addModelWithId(BookOwnedModel book) async {
+    final newDoc = await collection.add(book.toJson());
+    final newBook = book.copyWith(id: newDoc.id);
+    await update(id: newBook.id, toJson: newBook.toJson);
   }
-
-  Future<void> updateBook(BookOwnedModel book) =>
-      _collection.doc(book.id).update(book.toJson());
-
-  Future<void> removeBook(BookOwnedModel book) =>
-      _collection.doc(book.id).delete();
 }

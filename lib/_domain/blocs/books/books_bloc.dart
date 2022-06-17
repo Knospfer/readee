@@ -49,7 +49,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
         CombineLatestStream(
           [
             _bookRepository.singleItemStream(bookId),
-            _bookOwnedRepository.singleBookStream(bookId)
+            _bookOwnedRepository.singleItemStream(bookId)
           ],
           (values) => BookDetailEntity(
             values.first as BookModel,
@@ -87,7 +87,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       id: updatedBook.id,
       toJson: updatedBook.toJson,
     );
-    await _bookOwnedRepository.addBook(newBook);
+    await _bookOwnedRepository.addModelWithId(newBook);
     await _wishlistRepository.updateIdExisting(updatedBook);
   }
 
@@ -101,7 +101,10 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       id: updatedBook.id,
       toJson: updatedBook.toJson,
     );
-    await _bookOwnedRepository.updateBook(updatedBookOwned);
+    await _bookOwnedRepository.update(
+      id: updatedBookOwned.id,
+      toJson: updatedBookOwned.toJson,
+    );
   }
 
   Future<void> _lend(BookModel book, BookOwnedModel bookOwned) async {
@@ -113,7 +116,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
       id: updatedBook.id,
       toJson: updatedBook.toJson,
     );
-    await _bookOwnedRepository.removeBook(bookOwned);
+    await _bookOwnedRepository.remove(bookOwned.id);
   }
 
   Future<bool> _checkUserCanBorrowMoreBooks() async {

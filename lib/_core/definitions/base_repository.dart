@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class BaseRepository<T> {
   final String collectionName;
   final String itemNameKey;
   final String itemIdKey;
-  late final CollectionReference _collection =
+  @protected
+  late final CollectionReference collection =
       FirebaseFirestore.instance.collection(collectionName);
 
   BaseRepository({
@@ -16,14 +18,14 @@ abstract class BaseRepository<T> {
 
   T fromJson(Map<String, dynamic> map);
 
-  Stream<List<T>> stream() => _collection.snapshots().map(
+  Stream<List<T>> stream() => collection.snapshots().map(
         (event) => event.docs
             .map((e) => fromJson(e.data() as Map<String, dynamic>))
             .toList(),
       );
 
   Stream<T?> singleItemStream(String itemId) =>
-      _collection.where(itemIdKey, isEqualTo: itemId).snapshots().map(
+      collection.where(itemIdKey, isEqualTo: itemId).snapshots().map(
             (event) => event.docs
                 .map(
                   (e) => fromJson(e.data() as Map<String, dynamic>),
@@ -32,22 +34,22 @@ abstract class BaseRepository<T> {
           );
 
   Stream<List<T>> queryBy(String itemName) =>
-      _collection.where(itemNameKey, isEqualTo: itemName).snapshots().map(
+      collection.where(itemNameKey, isEqualTo: itemName).snapshots().map(
             (event) => event.docs
                 .map((e) => fromJson(e.data() as Map<String, dynamic>))
                 .toList(),
           );
 
   Future<void> add({required Map<String, dynamic> Function() toJson}) =>
-      _collection.add(toJson());
+      collection.add(toJson());
 
   Future<void> update({
     required String id,
     required Map<String, dynamic> Function() toJson,
   }) =>
-      _collection.doc(id).update(toJson());
+      collection.doc(id).update(toJson());
 
-  Future<void> removeBook(String id) => _collection.doc(id).delete();
+  Future<void> remove(String id) => collection.doc(id).delete();
 
   Future<T?> get(String id) async {
     final querySnapshot = await _getSnapshot(id);
@@ -59,7 +61,7 @@ abstract class BaseRepository<T> {
 
   Future<QueryDocumentSnapshot?> _getSnapshot(String id) async {
     final querySnapshotList =
-        await _collection.where(itemIdKey, isEqualTo: id).get();
+        await collection.where(itemIdKey, isEqualTo: id).get();
 
     return querySnapshotList.docs.firstOrNull;
   }
