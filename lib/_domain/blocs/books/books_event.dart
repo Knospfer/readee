@@ -35,11 +35,7 @@ class LendBook extends BooksOwnedEvent {
 }
 
 class ToggleWishlist extends BooksOwnedEvent {
-  static const _defaultBook = BookOwnedModel(
-    id: "",
-    bookId: "",
-    wishlisted: false,
-  );
+  static const _defaultBook = BookOwnedModel(id: "", bookId: "");
 
   const ToggleWishlist(BookModel book, BookOwnedModel? bookOwned)
       : super(book, bookOwned ?? _defaultBook);

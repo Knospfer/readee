@@ -12,7 +12,6 @@ class BookOwnedModel with _$BookOwnedModel {
   const factory BookOwnedModel({
     required String id,
     required String bookId,
-    @Default(false) wishlisted,
     @DateToTimestamp() DateTime? date,
   }) = _BookOwnedModel;
 
