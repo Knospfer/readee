@@ -19,7 +19,7 @@ class BorrowUseCase {
 
   Future<void> borrow(BookModel bookModel) async {
     final updatedBook = bookModel.copyWith(
-      date: DateTime.now(),
+      date: DateTime.now().add(const Duration(days: 14)),
       copies: bookModel.copies - 1,
       owned: true,
     );

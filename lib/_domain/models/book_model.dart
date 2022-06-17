@@ -10,9 +10,10 @@ part 'book_model.g.dart';
 
 @freezed
 class BookModel with _$BookModel {
-  int? get daysRemaining {
+  int get daysRemaining {
     final acutalDate = date;
-    if (acutalDate == null) return null;
+    if (acutalDate == null) return 0;
+
     final range = DateTimeRange(start: DateTime.now(), end: acutalDate);
 
     return range.duration.inDays;

@@ -108,18 +108,15 @@ class _AvailableBookCtas extends StatelessWidget {
       final userBook = state.data.bookOwnedModel;
       final libraryBook = state.data.bookModel;
 
-      final noUserBookNorBookAvailable =
-          userBook == null && !libraryBook.isAvailable;
+      if (userBook == null && !libraryBook.isAvailable) {
+        return _UnavailableBook(book: libraryBook);
+      }
 
       return Column(
-        mainAxisAlignment: noUserBookNorBookAvailable
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (noUserBookNorBookAvailable)
-            _UnavailableBook(book: libraryBook)
-          else if (userBook == null)
+          if (userBook == null && libraryBook.isAvailable)
             ElevatedButton(
               onPressed: () => context.read<BooksBloc>().add(
                     BorrowBook(libraryBook),
@@ -135,12 +132,12 @@ class _AvailableBookCtas extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () => context.read<BooksBloc>().add(
-                    LendBook(libraryBook, userBook),
+                    ReturnBook(libraryBook, userBook),
                   ),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
               ),
-              child: const Text("Lend"),
+              child: const Text("Return"),
             ),
           ],
         ],
@@ -150,12 +147,15 @@ class _AvailableBookCtas extends StatelessWidget {
 }
 
 class _UnavailableBook extends StatelessWidget {
-  final BookModel book;
+  final BookModel? book;
 
   const _UnavailableBook({required this.book});
 
   @override
   Widget build(BuildContext context) {
+    final actualBook = book;
+    if (actualBook == null || actualBook.date == null) return const SizedBox();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -164,18 +164,17 @@ class _UnavailableBook extends StatelessWidget {
           style: TextStyle(color: Colors.red),
         ),
         const SizedBox(height: 8),
-        if (book.daysRemaining != null)
-          Text.rich(
-            TextSpan(
-              text: "It will be available in ",
-              children: [
-                TextSpan(
-                  text: "${book.daysRemaining} days",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+        Text.rich(
+          TextSpan(
+            text: "It will be available in ",
+            children: [
+              TextSpan(
+                text: "${actualBook.daysRemaining} days",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
+        ),
       ],
     );
   }
