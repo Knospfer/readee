@@ -52,14 +52,14 @@ abstract class BaseRepository<T> {
   Future<void> remove(String id) => collection.doc(id).delete();
 
   Future<T?> get(String id) async {
-    final querySnapshot = await _getSnapshot(id);
+    final querySnapshot = await getSnapshot(id);
     if (querySnapshot == null) return null;
 
     final bookRaw = querySnapshot.data() as Map<String, dynamic>;
     return fromJson(bookRaw);
   }
 
-  Future<QueryDocumentSnapshot?> _getSnapshot(String id) async {
+  Future<QueryDocumentSnapshot?> getSnapshot(String id) async {
     final querySnapshotList =
         await collection.where(itemIdKey, isEqualTo: id).get();
 
