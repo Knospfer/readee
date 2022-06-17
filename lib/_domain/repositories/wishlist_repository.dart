@@ -7,7 +7,7 @@ import 'package:collection/collection.dart';
 @lazySingleton
 class WishlistRepository {
   final CollectionReference _collection =
-      FirebaseFirestore.instance.collection('wishlits');
+      FirebaseFirestore.instance.collection('wishlist');
 
   Stream<List<BookModel>> stream() => _collection.snapshots().map(
         (event) => event.docs
@@ -48,7 +48,10 @@ class WishlistRepository {
   Future<void> updateBook(BookModel book) =>
       _collection.doc(book.id).update(book.toJson());
 
-  Future<void> removeBook(BookModel book) => _collection.doc(book.id).delete();
+  Future<void> removeBook(BookModel book) async {
+    final actualBook = await _getSnapshot(book.id);
+    _collection.doc(actualBook?.id).delete();
+  }
 
   Future<QueryDocumentSnapshot?> _getSnapshot(String bookId) async {
     final querySnapshotList =

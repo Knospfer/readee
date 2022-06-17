@@ -32,10 +32,7 @@ class WishlistBloc extends Bloc<WishlistEvent, BlocState<bool>> {
         onData: (BookModel? book) => Loaded<bool>(book != null),
       );
 
-  ///add bookOwnedModel to update
-  ///data related to a book aleady owned
   Future<void> _toggleWishList(BookModel bookModel) async {
-    //todo loading
     final acutalBook = await _repository.getBook(bookModel.id);
 
     acutalBook == null
