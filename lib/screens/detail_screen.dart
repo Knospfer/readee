@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:readee/_domain/blocs/books_bloc.dart';
+import 'package:readee/_core/definitions/bloc_state.dart';
+import 'package:readee/_domain/blocs/books/books_bloc.dart';
+import 'package:readee/_domain/blocs/wishlist/wishlist_bloc.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 import 'package:readee/depencency_injection.dart';
@@ -15,8 +17,11 @@ class DetailScreen extends StatefulWidget implements AutoRouteWrapper {
   State<DetailScreen> createState() => _DetailScreenState();
 
   @override
-  Widget wrappedRoute(BuildContext context) => BlocProvider(
-        create: (_) => getIt<BooksBloc>(),
+  Widget wrappedRoute(BuildContext context) => MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => getIt<BooksBloc>()),
+          BlocProvider(create: (_) => getIt<WishlistBloc>()),
+        ],
         child: this,
       );
 }
@@ -27,6 +32,7 @@ class _DetailScreenState extends State<DetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<BooksBloc>().add(InitializeStream(widget.book));
+      context.read<WishlistBloc>().add(InitStream(widget.book));
     });
     super.initState();
   }
@@ -38,6 +44,18 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Book detail"),
+        actions: [
+          BlocBuilder<WishlistBloc, BlocState<bool>>(builder: (context, state) {
+            final acutalState = state is Loaded<bool> && state.data;
+
+            return IconButton(
+              onPressed: () => context.read<WishlistBloc>().add(
+                    Toggle(widget.book),
+                  ),
+              icon: Icon(acutalState ? Icons.favorite : Icons.favorite_border),
+            );
+          }),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
@@ -60,7 +78,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
                   if (state is! Loaded) return const SizedBox.shrink();
 
-                  return _OwnedDaysLeft(book: state.entity.bookOwnedModel);
+                  return _OwnedDaysLeft(book: state.data.bookOwnedModel);
                 }),
               ],
             ),
@@ -87,8 +105,8 @@ class _AvailableBookCtas extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
       if (state is! Loaded) return const SizedBox.shrink();
-      final userBook = state.entity.bookOwnedModel;
-      final libraryBook = state.entity.bookModel;
+      final userBook = state.data.bookOwnedModel;
+      final libraryBook = state.data.bookModel;
 
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,

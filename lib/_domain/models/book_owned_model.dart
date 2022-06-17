@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:readee/_core/json_converters/time_stamp.dart';
@@ -11,11 +12,15 @@ class BookOwnedModel with _$BookOwnedModel {
   const factory BookOwnedModel({
     required String id,
     required String bookId,
-    @DateToTimestamp() required DateTime date,
+    @Default(false) wishlisted,
+    @DateToTimestamp() DateTime? date,
   }) = _BookOwnedModel;
 
   int get daysRemaining {
-    final range = DateTimeRange(start: DateTime.now(), end: date);
+    final actualDate = date;
+    if (actualDate == null) return 0;
+
+    final range = DateTimeRange(start: DateTime.now(), end: actualDate);
 
     return range.duration.inDays;
   }

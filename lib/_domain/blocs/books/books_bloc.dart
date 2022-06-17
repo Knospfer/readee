@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:readee/_core/definitions/bloc_state.dart';
 import 'package:readee/_domain/entities/book_detail_entity.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
@@ -16,12 +17,12 @@ part 'books_event.dart';
 part 'books_state.dart';
 
 @injectable
-class BooksBloc extends Bloc<BooksEvent, BlocState> {
+class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
   final BookRepository _bookRepository;
   final BookOwnedRepository _bookOwnedRepository;
 
   BooksBloc(this._bookRepository, this._bookOwnedRepository)
-      : super(Initial()) {
+      : super(Initial<BookDetailEntity>()) {
     on<BooksEvent>((event, emit) async {
       switch (event.runtimeType) {
         case BorrowBook:
@@ -47,19 +48,19 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
             _bookRepository.singleBookStream(bookId),
             _bookOwnedRepository.stream(bookId)
           ],
-              (values) =>
-              BookDetailEntity(
-                values.first as BookModel,
-                values.last as BookOwnedModel?,
-              ),
+          (values) => BookDetailEntity(
+            values.first as BookModel,
+            values.last as BookOwnedModel?,
+          ),
         ),
-        onData: (BookDetailEntity entity) => Loaded(entity),
+        onData: (BookDetailEntity entity) => Loaded<BookDetailEntity>(entity),
       );
 
-  Future<void> _act(BooksOwnedEvent event,
-      Emitter<BlocState> emit,
-      Future<
-          void> Function(BookModel book, BookOwnedModel bookOwned) callback,) async {
+  Future<void> _act(
+    BooksOwnedEvent event,
+    Emitter<BlocState> emit,
+    Future<void> Function(BookModel book, BookOwnedModel bookOwned) callback,
+  ) async {
     // emit(Loading());
     await callback(event.book, event.bookOwnedModel);
     // emit(ActionPerformed());
@@ -73,12 +74,18 @@ class BooksBloc extends Bloc<BooksEvent, BlocState> {
       date: DateTime.now(),
       copies: bookModel.copies - 1,
     );
+    final newBook = BookOwnedModel(
+      id: "",
+      bookId: bookModel.id,
+      date: DateTime.now().add(const Duration(days: 14)),
+    );
     await _bookRepository.updateBook(updatedBook);
-    await _bookOwnedRepository.addBook(updatedBook);
+    await _bookOwnedRepository.addBook(newBook);
   }
 
   Future<void> _updateDeadline(BookModel book, BookOwnedModel bookOwned) async {
-    final oneMoreMonth = bookOwned.date.add(const Duration(days: 30));
+    if (bookOwned.date == null) return; //todo alert
+    final oneMoreMonth = bookOwned.date?.add(const Duration(days: 30));
     final updatedBookOwned = bookOwned.copyWith(date: oneMoreMonth);
     final updatedBook = book.copyWith(date: oneMoreMonth);
 

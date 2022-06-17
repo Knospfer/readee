@@ -33,3 +33,14 @@ class UpdateBookDeadline extends BooksOwnedEvent {
 class LendBook extends BooksOwnedEvent {
   const LendBook(super.book, super.bookOwnedModel);
 }
+
+class ToggleWishlist extends BooksOwnedEvent {
+  static const _defaultBook = BookOwnedModel(
+    id: "",
+    bookId: "",
+    wishlisted: false,
+  );
+
+  const ToggleWishlist(BookModel book, BookOwnedModel? bookOwned)
+      : super(book, bookOwned ?? _defaultBook);
+}

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
-import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 
 @lazySingleton
@@ -23,14 +22,14 @@ class BookOwnedRepository {
       );
 
   Future<BookOwnedModel?> getBook(String bookId) async {
-    final querySnapshot = await _getSnapshow(bookId);
+    final querySnapshot = await _getSnapshot(bookId);
     if (querySnapshot == null) return null;
 
     final bookRaw = querySnapshot.data() as Map<String, dynamic>;
     return BookOwnedModel.fromJson(bookRaw);
   }
 
-  Future<QueryDocumentSnapshot?> _getSnapshow(String bookId) async {
+  Future<QueryDocumentSnapshot?> _getSnapshot(String bookId) async {
     final querySnapshotList =
     await _collection.where("bookId", isEqualTo: bookId).get();
 
@@ -42,14 +41,9 @@ class BookOwnedRepository {
     return querySnapshot.docs.length;
   }
 
-  Future<void> addBook(BookModel book) async {
-    final newBook = BookOwnedModel(
-      id: "",
-      bookId: book.id,
-      date: DateTime.now().add(const Duration(days: 14)),
-    );
-    final newDoc = await _collection.add(newBook.toJson());
-    await updateBook(newBook.copyWith(id: newDoc.id));
+  Future<void> addBook(BookOwnedModel book) async {
+    final newDoc = await _collection.add(book.toJson());
+    await updateBook(book.copyWith(id: newDoc.id));
   }
 
   Future<void> updateBook(BookOwnedModel book) =>
