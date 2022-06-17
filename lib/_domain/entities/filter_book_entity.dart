@@ -1,6 +1,11 @@
 class FilterBookEntity {
-  final String? name;
-  final bool? wishlisted;
+  final String name;
+  final bool wishlisted;
+  final bool owned;
 
-  FilterBookEntity({this.name, this.wishlisted});
+  FilterBookEntity({
+    required this.name,
+    required this.wishlisted,
+    required this.owned,
+  });
 }

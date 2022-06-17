@@ -26,18 +26,21 @@ class _FilterModalState extends State<FilterModal> {
   final form = FormGroup({
     'name': FormControl<String>(value: ''),
     'wishlisted': FormControl<bool>(value: false),
+    'owned': FormControl<bool>(value: false),
   });
 
   void _submit(BuildContext context, FormGroup formGroup) {
     final name = formGroup.control('name').value as String;
-    final wishlisted = formGroup.control('wishlisted').value;
+    final wishlisted = formGroup.control('wishlisted').value as bool;
+    final owned = formGroup.control('owned').value as bool;
 
-    final isFormEmpty = name.isEmpty && wishlisted == false;
+    final isFormEmpty = name.isEmpty && !wishlisted && !owned;
     final filter = isFormEmpty
         ? null
         : FilterBookEntity(
             name: name,
             wishlisted: wishlisted,
+            owned: owned,
           );
 
     context.router.pop(filter);
@@ -64,6 +67,10 @@ class _FilterModalState extends State<FilterModal> {
             ReactiveCheckboxListTile(
               title: const Text("In Wishlist"),
               formControlName: "wishlisted",
+            ),
+            ReactiveCheckboxListTile(
+              title: const Text("Owned"),
+              formControlName: "owned",
             ),
             Padding(
               padding: const EdgeInsets.all(16).copyWith(bottom: 8),

@@ -21,13 +21,15 @@ class BookCubit extends Cubit<List<BookModel>> {
     if (filter == null) return _init();
     _subscription?.cancel();
 
-    final wishlisted = filter.wishlisted;
-    final bookName = filter.name;
-    if (wishlisted == true) return _searchWishlist(bookName);
+    if (filter.wishlisted) return _searchWishlist(filter);
 
-    if (bookName == null || bookName.isEmpty) return _init();
+    final stream = filter.name.isEmpty
+        ? _bookRepository.stream()
+        : _bookRepository.query(filter.name);
 
-    _subscription = _bookRepository.query(bookName).listen((event) => emit(event));
+    _subscription = stream.listen(
+          (event) => emit(event.where((e) => e.owned == filter.owned).toList()),
+    );
   }
 
   void _init() {
@@ -35,11 +37,20 @@ class BookCubit extends Cubit<List<BookModel>> {
     _subscription = _bookRepository.stream().listen((event) => emit(event));
   }
 
-  void _searchWishlist(String? bookName) {
-    final stream = bookName == null || bookName.isEmpty
+  void _searchWishlist(FilterBookEntity filter) {
+    final bookName = filter.name;
+    final owned = filter.owned;
+
+    final stream = bookName.isEmpty
         ? _wishlistRepository.stream()
         : _wishlistRepository.query(bookName);
-    _subscription = stream.listen((event) => emit(event));
+
+    _subscription = stream.listen(
+          (event) =>
+          emit(
+            event.where((e) => e.owned == owned).toList(),
+          ),
+    );
   }
 
   @override

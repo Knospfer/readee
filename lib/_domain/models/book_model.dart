@@ -26,6 +26,7 @@ class BookModel with _$BookModel {
     required String author,
     required String genre,
     required int copies,
+    @Default(false) owned,
     @DateToTimestamp() DateTime? date,
   }) = _BookModel;
 
@@ -34,4 +35,3 @@ class BookModel with _$BookModel {
 
   const BookModel._();
 }
-
