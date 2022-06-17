@@ -108,18 +108,24 @@ class _AvailableBookCtas extends StatelessWidget {
       final userBook = state.data.bookOwnedModel;
       final libraryBook = state.data.bookModel;
 
+      final noUserBookNorBookAvailable =
+          userBook == null && !libraryBook.isAvailable;
+
       return Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: noUserBookNorBookAvailable
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (userBook == null && libraryBook.isAvailable)
+          if (noUserBookNorBookAvailable)
+            _UnavailableBook(book: libraryBook)
+          else if (userBook == null)
             ElevatedButton(
-              onPressed: () =>
-                  context.read<BooksBloc>().add(BorrowBook(libraryBook)),
+              onPressed: () => context.read<BooksBloc>().add(
+                    BorrowBook(libraryBook),
+                  ),
               child: const Text("Borrow"),
             )
-          else if (userBook == null)
-            _UnavailableBook(book: libraryBook)
           else ...[
             ElevatedButton(
               onPressed: () => context.read<BooksBloc>().add(
