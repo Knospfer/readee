@@ -30,8 +30,8 @@ class UpdateBookDeadline extends BooksOwnedEvent {
 }
 
 @immutable
-class LendBook extends BooksOwnedEvent {
-  const LendBook(super.book, super.bookOwnedModel);
+class ReturnBook extends BooksOwnedEvent {
+  const ReturnBook(super.book, super.bookOwnedModel);
 }
 
 class ToggleWishlist extends BooksOwnedEvent {

@@ -37,7 +37,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
         case UpdateBookDeadline:
           await _act(event as BooksOwnedEvent, emit, _updateDeadline);
           break;
-        case LendBook:
+        case ReturnBook:
           await _act(event as BooksOwnedEvent, emit, _giveBackUseCase.giveBack);
           break;
         case InitializeStream:
