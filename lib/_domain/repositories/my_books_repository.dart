@@ -2,18 +2,18 @@ import 'package:injectable/injectable.dart';
 import 'package:readee/_core/definitions/base_repository.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 
-//TODO RIMUOVI CODICE DUPLICATO
 @lazySingleton
-class BookOwnedRepository extends BaseRepository {
+class BookOwnedRepository extends BaseRepository<BookOwnedModel> {
   BookOwnedRepository()
       : super(
-    collectionName: "my_books",
-    itemNameKey: "bookId",
-    itemIdKey: "bookId",
-  );
+          collectionName: "my_books",
+          itemNameKey: "bookId",
+          itemIdKey: "bookId",
+        );
 
   @override
-  fromJson(Map<String, dynamic> map) => BookOwnedModel.fromJson(map);
+  BookOwnedModel fromJson(Map<String, dynamic> map) =>
+      BookOwnedModel.fromJson(map);
 
   Future<int> getUserBooksNumber() async {
     final querySnapshot = await collection.get();
