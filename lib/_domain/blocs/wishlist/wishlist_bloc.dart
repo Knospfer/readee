@@ -37,6 +37,6 @@ class WishlistBloc extends Bloc<WishlistEvent, BlocState<bool>> {
 
     acutalBook == null
         ? await _repository.add(toJson: bookModel.toJson)
-        : await _repository.removeBook(acutalBook);
+        : await _repository.removeItemFrom(acutalBook);
   }
 }

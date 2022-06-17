@@ -15,7 +15,7 @@ class WishlistRepository extends BaseRepository<BookModel> {
           itemIdKey: "id",
         );
 
-  Future<void> removeBook(BookModel book) async {
+  Future<void> removeItemFrom(BookModel book) async {
     final actualBook = await getSnapshot(book.id);
     _collection.doc(actualBook?.id).delete();
   }
