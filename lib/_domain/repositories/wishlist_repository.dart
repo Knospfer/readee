@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:collection/collection.dart';
 
-//TODO CODICE DUPLICATO
+//TODO RIMUOVI CODICE DUPLICATO
 @lazySingleton
 class WishlistRepository {
   final CollectionReference _collection =
@@ -44,9 +44,6 @@ class WishlistRepository {
     final bookRaw = querySnapshot.data() as Map<String, dynamic>;
     return BookModel.fromJson(bookRaw);
   }
-
-  Future<void> updateBook(BookModel book) =>
-      _collection.doc(book.id).update(book.toJson());
 
   Future<void> removeBook(BookModel book) async {
     final actualBook = await _getSnapshot(book.id);

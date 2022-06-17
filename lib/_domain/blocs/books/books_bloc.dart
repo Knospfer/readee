@@ -46,7 +46,7 @@ class BooksBloc extends Bloc<BooksEvent, BlocState<BookDetailEntity>> {
         CombineLatestStream(
           [
             _bookRepository.singleBookStream(bookId),
-            _bookOwnedRepository.stream(bookId)
+            _bookOwnedRepository.singleBookStream(bookId)
           ],
           (values) => BookDetailEntity(
             values.first as BookModel,
