@@ -2,11 +2,16 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_core/definitions/bloc_state.dart';
+import 'package:readee/_core/widgets/book_image.dart';
 import 'package:readee/_domain/blocs/books/books_bloc.dart';
 import 'package:readee/_domain/blocs/wishlist/wishlist_bloc.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 import 'package:readee/depencency_injection.dart';
+
+const loremIpsum = """ 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed consectetur eu velit sed malesuada. Duis placerat nulla eros, vitae porttitor tellus blandit at. Nullam nulla neque, placerat eget ante accumsan, congue placerat dui. Aliquam eu finibus leo, non lacinia ante. Praesent arcu lorem, tincidunt in dignissim a, volutpat vitae nulla. Mauris pharetra placerat turpis, ac tincidunt sem porta vitae. Sed id bibendum elit. Quisque rutrum, purus pharetra ornare scelerisque, nulla dolor dapibus ante, at tincidunt dui tellus nec est. Nulla ornare tellus ac arcu maximus, ac euismod justo rhoncus. Donec ac urna pharetra, feugiat erat quis, fermentum lorem. Etiam venenatis hendrerit est.
+""";
 
 class DetailScreen extends StatefulWidget implements AutoRouteWrapper {
   final BookModel book;
@@ -42,17 +47,22 @@ class _DetailScreenState extends State<DetailScreen> {
     final bottomSafeArea = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text("Book detail"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           BlocBuilder<WishlistBloc, BlocState<bool>>(builder: (context, state) {
             final acutalState = state is Loaded<bool> && state.data;
 
             return IconButton(
+              icon: Icon(
+                acutalState ? Icons.favorite : Icons.favorite_border,
+                color: Colors.red,
+              ),
               onPressed: () => context.read<WishlistBloc>().add(
                     Toggle(widget.book),
                   ),
-              icon: Icon(acutalState ? Icons.favorite : Icons.favorite_border),
             );
           }),
         ],
@@ -61,25 +71,32 @@ class _DetailScreenState extends State<DetailScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ListTile(
-                  title: const Text("Title"),
-                  subtitle: Text(widget.book.name),
+                _Header(book: widget.book),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      _DataTile(title: "Genre", body: widget.book.genre),
+                      _DataTile(title: "Author", body: widget.book.author),
+                    ],
+                  ),
                 ),
-                ListTile(
-                  title: const Text("Author"),
-                  subtitle: Text(widget.book.author),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    "Overview",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ),
-                ListTile(
-                  title: const Text("Genre"),
-                  subtitle: Text(widget.book.genre),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    loremIpsum,
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
-                BlocBuilder<BooksBloc, BlocState>(builder: (_, state) {
-                  if (state is! Loaded) return const SizedBox.shrink();
-
-                  return _OwnedDaysLeft(book: state.data.bookOwnedModel);
-                }),
               ],
             ),
           ),
@@ -101,6 +118,10 @@ class _DetailScreenState extends State<DetailScreen> {
 class _AvailableBookCtas extends StatelessWidget {
   const _AvailableBookCtas();
 
+  void _borrowBook(BuildContext context, BookModel book) {
+    context.read<BooksBloc>().add(BorrowBook(book));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BooksBloc, BlocState>(listener: (_, state) {
@@ -114,31 +135,38 @@ class _AvailableBookCtas extends StatelessWidget {
       }
     }, builder: (_, state) {
       if (state is! Loaded) return const SizedBox.shrink();
-      final userBook = state.data.bookOwnedModel;
-      final libraryBook = state.data.bookModel;
-
-      if (userBook == null && !libraryBook.isAvailable) {
-        return _UnavailableBook(book: libraryBook);
-      }
+      final userBook = state.data.bookOwnedModel as BookOwnedModel?;
+      final libraryBook = state.data.bookModel as BookModel;
 
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (userBook == null && libraryBook.isAvailable)
+          if (userBook == null) ...[
             ElevatedButton(
-              onPressed: () => context.read<BooksBloc>().add(
-                    BorrowBook(libraryBook),
-                  ),
-              child: const Text("Borrow"),
-            )
-          else ...[
-            ElevatedButton(
-              onPressed: () => context.read<BooksBloc>().add(
-                    UpdateBookDeadline(libraryBook, userBook),
-                  ),
-              child: const Text("Keep it for 30 more days"),
+              onPressed: libraryBook.isAvailable
+                  ? () => _borrowBook(context, libraryBook)
+                  : null,
+              child: const Text(
+                "Borrow",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
+            if (!libraryBook.isAvailable)
+              Center(
+                child: Text.rich(
+                  TextSpan(
+                    text: "Available in ",
+                    children: [
+                      TextSpan(
+                        text: "${libraryBook.daysRemaining} days",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ] else ...[
             ElevatedButton(
               onPressed: () => context.read<BooksBloc>().add(
                     ReturnBook(libraryBook, userBook),
@@ -146,7 +174,18 @@ class _AvailableBookCtas extends StatelessWidget {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
               ),
-              child: const Text("Return"),
+              child: const Text(
+                "Return",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.read<BooksBloc>().add(
+                    UpdateBookDeadline(libraryBook, userBook),
+                  ),
+              child: Text(
+                "Keep it for 30 more days (${userBook.daysRemaining} remaining)",
+              ),
             ),
           ],
         ],
@@ -155,63 +194,65 @@ class _AvailableBookCtas extends StatelessWidget {
   }
 }
 
-class _UnavailableBook extends StatelessWidget {
-  final BookModel? book;
+class _Header extends StatelessWidget {
+  final BookModel book;
 
-  const _UnavailableBook({required this.book});
+  const _Header({required this.book});
 
   @override
   Widget build(BuildContext context) {
-    final actualBook = book;
-    if (actualBook == null || actualBook.date == null) return const SizedBox();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "This book is currently NOT available!",
-          style: TextStyle(color: Colors.red),
-        ),
-        const SizedBox(height: 8),
-        Text.rich(
-          TextSpan(
-            text: "It will be available in ",
-            children: [
-              TextSpan(
-                text: "${actualBook.daysRemaining} days",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.only(top: 80, bottom: 32),
+      decoration: const BoxDecoration(
+        color: Colors.grey,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          const BookImage(url: "", height: 200, width: 140),
+          const SizedBox(height: 30),
+          Text(
+            book.name,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            "by ${book.author}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _OwnedDaysLeft extends StatelessWidget {
-  final BookOwnedModel? book;
+class _DataTile extends StatelessWidget {
+  final String title;
+  final String body;
 
-  const _OwnedDaysLeft({required this.book});
+  const _DataTile({required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
-    final acutalBook = book;
-    if (acutalBook == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text.rich(
-        TextSpan(
-          text: "You have ",
+    return Expanded(
+      child: Center(
+        child: Column(
           children: [
-            TextSpan(
-              text: "${acutalBook.daysRemaining} days",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            const TextSpan(text: " left"),
+            Text(
+              body,
+              style: const TextStyle(fontSize: 16),
+            ),
           ],
         ),
       ),
