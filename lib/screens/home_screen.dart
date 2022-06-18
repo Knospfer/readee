@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_core/navigation.gr.dart';
+import 'package:readee/_core/widgets/book_image.dart';
+import 'package:readee/_core/widgets/standard_box_shadow.dart';
 import 'package:readee/_domain/entities/filter_book_entity.dart';
 import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/depencency_injection.dart';
@@ -34,9 +36,8 @@ class HomeState extends State<HomeScreen> {
       appBar: AppBar(title: const Text("Readee")),
       body: BlocBuilder<BookCubit, List<BookModel>>(
         builder: ((_, items) {
-          return ListView.separated(
+          return ListView.builder(
             itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final book = items[index];
 
@@ -64,14 +65,61 @@ class _BookListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bookAvailable = book.copies > 0;
-    final color = bookAvailable ? Colors.green : Colors.orange;
-    final icon =
-        bookAvailable ? Icons.check_circle_outline : Icons.access_time_outlined;
+    final color =
+        bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
+    final icon = bookAvailable ? Icons.check : Icons.close_rounded;
 
-    return ListTile(
-      title: Text(book.name),
-      subtitle: Text(book.author),
-      leading: Icon(icon, color: color),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        boxShadow: [StandardBoxShadow()],
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const BookImage(
+            url: "", //TODO BOOK IMAGE
+            height: 60,
+            width: 60,
+            margin: EdgeInsets.all(16),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  book.name,
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "by ${book.author}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Expanded(child: SizedBox()),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(4),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, color: Colors.white),
+          )
+        ],
+      ),
     );
   }
 }
