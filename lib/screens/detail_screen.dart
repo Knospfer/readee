@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_core/definitions/bloc_state.dart';
+import 'package:readee/_core/theme/theme_data.dart';
 import 'package:readee/_core/widgets/book_image.dart';
 import 'package:readee/_domain/blocs/books/books_bloc.dart';
 import 'package:readee/_domain/blocs/wishlist/wishlist_bloc.dart';
@@ -104,8 +105,10 @@ class _DetailAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appBarColor = book.isAvailable ? green : orange;
+
     return SliverAppBar(
-      backgroundColor: Colors.grey,
+      backgroundColor: appBarColor,
       pinned: true,
       actions: [
         BlocBuilder<WishlistBloc, BlocState<bool>>(builder: (context, state) {
@@ -211,11 +214,13 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final headerColor = book.isAvailable ? green : orange;
+
     return Container(
       padding: const EdgeInsets.only(top: 16, bottom: 32),
-      decoration: const BoxDecoration(
-        color: Colors.grey,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: headerColor,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
       ),
       child: Column(
         children: [

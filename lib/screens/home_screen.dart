@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:readee/_core/navigation.gr.dart';
+import 'package:readee/_core/navigation/navigation.gr.dart';
+import 'package:readee/_core/theme/theme_data.dart';
 import 'package:readee/_core/widgets/book_image.dart';
 import 'package:readee/_core/widgets/staggered_sliver_list.dart';
 import 'package:readee/_core/widgets/standard_box_shadow.dart';
@@ -99,7 +100,7 @@ class _HomeHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              Text("what do you want to read today?"),
+              Text("What do you want to read today?"),
             ],
           ),
         ),
@@ -116,8 +117,7 @@ class _BookListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bookAvailable = book.copies > 0;
-    final color =
-        bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
+    final color = bookAvailable ? green : orange;
     final icon = bookAvailable ? Icons.check : Icons.close_rounded;
 
     return Container(
