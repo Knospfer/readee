@@ -19,6 +19,7 @@ class BookImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       margin: margin,
       decoration: BoxDecoration(
         color: Colors.grey.shade300,
