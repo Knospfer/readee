@@ -131,11 +131,11 @@ class _BookListTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const BookImage(
-            url: "", //TODO BOOK IMAGE
+          BookImage(
+            url: book.image,
             height: 60,
             width: 60,
-            margin: EdgeInsets.all(16),
+            margin: const EdgeInsets.all(16),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),

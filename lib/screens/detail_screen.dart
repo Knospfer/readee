@@ -224,7 +224,7 @@ class _Header extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const BookImage(url: "", height: 200, width: 140),
+          BookImage(url: book.image, height: 200, width: 140),
           const SizedBox(height: 30),
           Text(
             book.name,

@@ -22,7 +22,7 @@ class BookImage extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       margin: margin,
       decoration: BoxDecoration(
-        color: Colors.grey.shade300,
+        color: Colors.grey.shade400,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         boxShadow: [StandardBoxShadow()],
       ),
@@ -30,8 +30,7 @@ class BookImage extends StatelessWidget {
         height: height,
         width: width,
         placeholder: kTransparentImage,
-        image: //TODO IMAGE
-            "https://kbimages1-a.akamaihd.net/fdcc4f79-59c4-4147-b750-6f2510096f69/1200/1200/False/nevernight-the-nevernight-chronicle-book-1.jpg",
+        image: url,
         fit: BoxFit.cover,
       ),
     );
