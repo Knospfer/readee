@@ -10,10 +10,6 @@ import 'package:readee/_domain/models/book_model.dart';
 import 'package:readee/_domain/models/book_owned_model.dart';
 import 'package:readee/depencency_injection.dart';
 
-const loremIpsum = """ 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed consectetur eu velit sed malesuada. Duis placerat nulla eros, vitae porttitor tellus blandit at. Nullam nulla neque, placerat eget ante accumsan, congue placerat dui. Aliquam eu finibus leo, non lacinia ante. Praesent arcu lorem, tincidunt in dignissim a, volutpat vitae nulla. Mauris pharetra placerat turpis, ac tincidunt sem porta vitae. Sed id bibendum elit. Quisque rutrum, purus pharetra ornare scelerisque, nulla dolor dapibus ante, at tincidunt dui tellus nec est. Nulla ornare tellus ac arcu maximus, ac euismod justo rhoncus. Donec ac urna pharetra, feugiat erat quis, fermentum lorem. Etiam venenatis hendrerit est.
-""";
-
 class DetailScreen extends StatefulWidget implements AutoRouteWrapper {
   final BookModel book;
 
@@ -73,11 +69,14 @@ class _DetailScreenState extends State<DetailScreen> {
                     style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Text(
-                    loremIpsum,
-                    style: TextStyle(fontSize: 14),
+                    widget.book.overview,
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],

@@ -28,6 +28,7 @@ class BookModel with _$BookModel {
     required String genre,
     required int copies,
     required String image,
+    @Default("") String overview,
     @Default(false) owned,
     @DateToTimestamp() DateTime? date,
   }) = _BookModel;
