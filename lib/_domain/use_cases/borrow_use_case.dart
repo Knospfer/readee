@@ -28,11 +28,14 @@ class BorrowUseCase {
       bookId: bookModel.id,
       date: DateTime.now().add(const Duration(days: 14)),
     );
+    ///I need to track in every table if a book is
+    ///owned by the user, in order to serch for it
+    ///in the home page
+    await _bookOwnedRepository.addModelWithId(newBook);
     await _bookRepository.update(
       id: updatedBook.id,
       toJson: updatedBook.toJson,
     );
-    await _bookOwnedRepository.addModelWithId(newBook);
     await _wishlistRepository.updateIfExisting(updatedBook);
   }
 
