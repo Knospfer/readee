@@ -18,8 +18,7 @@ class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
   State<StatefulWidget> createState() => HomeState();
 
   @override
-  Widget wrappedRoute(BuildContext context) =>
-      BlocProvider(
+  Widget wrappedRoute(BuildContext context) => BlocProvider(
         create: (_) => getIt<BookCubit>(),
         child: this,
       );
@@ -44,7 +43,7 @@ class HomeState extends State<HomeScreen> {
         }),
         child: CustomScrollView(
           slivers: [
-            const _HomeHeader(),
+            _HomeHeader(onActionTap: _showFilter),
             const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
             StaggeredSliverList<BookModel>(
               key: _key,
@@ -59,19 +58,14 @@ class HomeState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showFilter,
-        child: const Icon(
-          Icons.search,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader();
+  final VoidCallback onActionTap;
+
+  const _HomeHeader({required this.onActionTap});
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +73,15 @@ class _HomeHeader extends StatelessWidget {
       backgroundColor: Colors.transparent,
       expandedHeight: 140,
       floating: false,
+      pinned: true,
+      elevation: 0,
+      title: const Text("Readee"),
+      actions: [
+        IconButton(
+          onPressed: onActionTap,
+          icon: const Icon(Icons.search),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,7 +105,6 @@ class _HomeHeader extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _BookListTile extends StatelessWidget {
@@ -114,7 +116,7 @@ class _BookListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bookAvailable = book.copies > 0;
     final color =
-    bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
+        bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
     final icon = bookAvailable ? Icons.check : Icons.close_rounded;
 
     return Container(

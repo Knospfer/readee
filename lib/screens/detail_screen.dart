@@ -47,28 +47,9 @@ class _DetailScreenState extends State<DetailScreen> {
     final bottomSafeArea = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          BlocBuilder<WishlistBloc, BlocState<bool>>(builder: (context, state) {
-            final acutalState = state is Loaded<bool> && state.data;
-
-            return IconButton(
-              icon: Icon(
-                acutalState ? Icons.favorite : Icons.favorite_border,
-                color: Colors.red,
-              ),
-              onPressed: () => context.read<WishlistBloc>().add(
-                    Toggle(widget.book),
-                  ),
-            );
-          }),
-        ],
-      ),
       body: CustomScrollView(
         slivers: [
+          _DetailAppBar(book: widget.book),
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,6 +64,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -111,6 +93,33 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DetailAppBar extends StatelessWidget {
+  final BookModel book;
+
+  const _DetailAppBar({required this.book});
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      backgroundColor: Colors.grey,
+      pinned: true,
+      actions: [
+        BlocBuilder<WishlistBloc, BlocState<bool>>(builder: (context, state) {
+          final acutalState = state is Loaded<bool> && state.data;
+
+          return IconButton(
+            icon: Icon(
+              acutalState ? Icons.favorite : Icons.favorite_border,
+              color: Colors.red,
+            ),
+            onPressed: () => context.read<WishlistBloc>().add(Toggle(book)),
+          );
+        }),
+      ],
     );
   }
 }
@@ -147,9 +156,9 @@ class _AvailableBookCtas extends StatelessWidget {
               onPressed: libraryBook.isAvailable
                   ? () => _borrowBook(context, libraryBook)
                   : null,
-              child: const Text(
-                "Borrow",
-                style: TextStyle(color: Colors.white),
+              child: Text(
+                libraryBook.isAvailable ? "Borrow" : "Not Available",
+                style: const TextStyle(color: Colors.white),
               ),
             ),
             if (!libraryBook.isAvailable)
@@ -202,7 +211,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 80, bottom: 32),
+      padding: const EdgeInsets.only(top: 16, bottom: 32),
       decoration: const BoxDecoration(
         color: Colors.grey,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
