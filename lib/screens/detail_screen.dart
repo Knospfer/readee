@@ -65,11 +65,11 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     "Overview",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 const Padding(
@@ -180,9 +180,6 @@ class _AvailableBookCtas extends StatelessWidget {
               onPressed: () => context.read<BooksBloc>().add(
                     ReturnBook(libraryBook, userBook),
                   ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-              ),
               child: const Text(
                 "Return",
                 style: TextStyle(color: Colors.white),
@@ -194,6 +191,10 @@ class _AvailableBookCtas extends StatelessWidget {
                   ),
               child: Text(
                 "Keep it for 30 more days (${userBook.daysRemaining} remaining)",
+                style: Theme.of(context).textTheme.subtitle1?.copyWith(
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
               ),
             ),
           ],
@@ -256,7 +257,7 @@ class _DataTile extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: Theme.of(context).textTheme.subtitle1,
             ),
             Text(
               body,

@@ -49,8 +49,9 @@ class HomeState extends State<HomeScreen> {
               key: _key,
               builder: (_, item) {
                 return GestureDetector(
-                  onTap: () =>
-                      context.router.push(DetailScreenRoute(book: item)),
+                  onTap: () => context.router.push(
+                    DetailScreenRoute(book: item),
+                  ),
                   child: _BookListTile(book: item),
                 );
               },
@@ -122,7 +123,7 @@ class _BookListTile extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         boxShadow: [StandardBoxShadow()],
       ),
@@ -148,10 +149,7 @@ class _BookListTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   "by ${book.author}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: Theme.of(context).textTheme.subtitle1,
                 ),
               ],
             ),

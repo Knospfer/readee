@@ -12,14 +12,36 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   final _router = AppRouter();
+
   MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp.router(
       title: 'Readee',
-      theme: ThemeData(primarySwatch: Colors.grey, fontFamily: 'CharisSIL'),
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xffF7F7F7),
+        fontFamily: 'CharisSIL',
+        colorScheme: const ColorScheme(
+          primary: Color(0xff222831),
+          secondary: Color(0xff222831),
+          surface: Color(0xff222831),
+          background: Color(0xff222831),
+          error: Color(0xff222831),
+          onPrimary: Color(0xff222831),
+          onSecondary: Color(0xff222831),
+          onSurface: Color(0xff222831),
+          onBackground: Color(0xff222831),
+          onError: Color(0xff222831),
+          brightness: Brightness.light,
+        ),
+        textTheme: const TextTheme(
+          bodyText2: TextStyle(color: Color(0xff222831)),
+          subtitle1: TextStyle(color: Color(0xff9D9D9D), fontSize: 12),
+        ),
+      ),
+      themeMode: ThemeMode.system,
       routerDelegate: _router.delegate(),
       routeInformationParser: _router.defaultRouteParser(),
     );
