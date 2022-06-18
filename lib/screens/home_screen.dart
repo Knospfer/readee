@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:readee/_core/navigation.gr.dart';
 import 'package:readee/_core/widgets/book_image.dart';
+import 'package:readee/_core/widgets/staggered_sliver_list.dart';
 import 'package:readee/_core/widgets/standard_box_shadow.dart';
 import 'package:readee/_domain/entities/filter_book_entity.dart';
 import 'package:readee/_domain/models/book_model.dart';
@@ -17,13 +18,16 @@ class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
   State<StatefulWidget> createState() => HomeState();
 
   @override
-  Widget wrappedRoute(BuildContext context) => BlocProvider(
+  Widget wrappedRoute(BuildContext context) =>
+      BlocProvider(
         create: (_) => getIt<BookCubit>(),
         child: this,
       );
 }
 
 class HomeState extends State<HomeScreen> {
+  final _key = GlobalKey<StaggeredSliverListState<BookModel>>();
+
   Future<void> _showFilter() async {
     final filter = await showFilterModal(context) as FilterBookEntity?;
     if (!mounted) return;
@@ -33,28 +37,72 @@ class HomeState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Readee")),
-      body: BlocBuilder<BookCubit, List<BookModel>>(
-        builder: ((_, items) {
-          return ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final book = items[index];
-
-              return GestureDetector(
-                onTap: () => context.router.push(DetailScreenRoute(book: book)),
-                child: _BookListTile(book: book),
-              );
-            },
-          );
+      body: BlocListener<BookCubit, List<BookModel>>(
+        listener: ((_, items) {
+          _key.currentState?.emptyList();
+          _key.currentState?.addItemsStaggered(items);
         }),
+        child: CustomScrollView(
+          slivers: [
+            const _HomeHeader(),
+            const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+            StaggeredSliverList<BookModel>(
+              key: _key,
+              builder: (_, item) {
+                return GestureDetector(
+                  onTap: () =>
+                      context.router.push(DetailScreenRoute(book: item)),
+                  child: _BookListTile(book: item),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showFilter,
-        child: const Icon(Icons.search),
+        child: const Icon(
+          Icons.search,
+          color: Colors.white,
+        ),
       ),
     );
   }
+}
+
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      backgroundColor: Colors.transparent,
+      expandedHeight: 140,
+      floating: false,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.bottomLeft,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Hi reader!",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text("what do you want to read today?"),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }
 
 class _BookListTile extends StatelessWidget {
@@ -66,7 +114,7 @@ class _BookListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bookAvailable = book.copies > 0;
     final color =
-        bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
+    bookAvailable ? Colors.green.shade300 : Colors.orange.shade300;
     final icon = bookAvailable ? Icons.check : Icons.close_rounded;
 
     return Container(
