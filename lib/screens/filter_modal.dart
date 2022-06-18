@@ -55,7 +55,29 @@ class _FilterModalState extends State<FilterModal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16).copyWith(bottom: 0),
+              padding: const EdgeInsets.all(16).copyWith(bottom: 0, top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Search books",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ReactiveFormConsumer(
+                    builder: (context, form, _) => IconButton(
+                      onPressed: () => _submit(context, form),
+                      icon: const Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16)
+                  .copyWith(bottom: 24),
               child: ReactiveTextField(
                 formControlName: 'name',
                 decoration: const InputDecoration(
@@ -64,25 +86,17 @@ class _FilterModalState extends State<FilterModal> {
                 ),
               ),
             ),
-            ReactiveCheckboxListTile(
-              title: const Text("In Wishlist"),
+            const _FilterListTile(
+              title: "In Wishlist",
               formControlName: "wishlisted",
             ),
-            ReactiveCheckboxListTile(
-              title: const Text("Owned"),
+            const _FilterListTile(
+              title: "Owned",
               formControlName: "owned",
             ),
+            const Expanded(child: SizedBox()),
             Padding(
-              padding: const EdgeInsets.all(16).copyWith(bottom: 8),
-              child: ReactiveFormConsumer(
-                builder: (context, form, _) => ElevatedButton(
-                  onPressed: () => _submit(context, form),
-                  child: const Text("Search!"),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
               child: TextButton(
                 onPressed: () => context.router.pop(),
                 child: const Text("Reset"),
@@ -91,6 +105,23 @@ class _FilterModalState extends State<FilterModal> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FilterListTile extends StatelessWidget {
+  final String formControlName;
+  final String title;
+
+  const _FilterListTile({required this.formControlName, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return ReactiveCheckboxListTile(
+      title: Text(title),
+      formControlName: formControlName,
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: const EdgeInsets.only(right: 16, left: 6),
     );
   }
 }
